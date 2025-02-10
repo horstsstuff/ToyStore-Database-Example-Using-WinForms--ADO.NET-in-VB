@@ -1,15 +1,16 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data.Common
+Imports SalouWS4Sql.Client
 
 Public Class ProductDB
     Public Shared Function GetProducts() As List(Of Product)
         Dim productList As New List(Of Product)
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         Dim selectStatement As String = "SELECT * FROM Products"
-        Dim selectCommand As New SqlCommand(selectStatement, connection)
+        Dim selectCommand As New SalouCommand(selectStatement, connection)
 
         Try
             connection.Open()
-            Dim reader As SqlDataReader = selectCommand.ExecuteReader
+            Dim reader = selectCommand.ExecuteReader
             Dim product As Product
             While reader.Read
                 product = New Product

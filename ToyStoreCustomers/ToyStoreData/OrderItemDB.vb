@@ -1,15 +1,16 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data.Common
+Imports SalouWS4Sql.Client
 
 Public Class OrderItemDB
     Public Shared Function GetOrderItems(ByVal orderNum As Integer) As List(Of OrderItem)
         Dim orderItemList As New List(Of OrderItem)
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         Dim selectStatement As String = "SELECT * FROM OrderItems WHERE order_num = @order_num;"
-        Dim selectCommand As New SqlCommand(selectStatement, connection)
+        Dim selectCommand As New SalouCommand(selectStatement, connection)
         selectCommand.Parameters.AddWithValue("@order_num", orderNum)
         Try
             connection.Open()
-            Dim reader As SqlDataReader = selectCommand.ExecuteReader
+            Dim reader = selectCommand.ExecuteReader
             Dim orderItem As OrderItem
             While reader.Read
                 orderItem = New OrderItem

@@ -1,15 +1,16 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data.Common
+Imports SalouWS4Sql.Client
 
 Public Class OrderDB
     Public Shared Function GetCustomerOrders(ByVal CustomerID As Integer) As List(Of Order)
         Dim orderList As New List(Of Order)
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         Dim selectStatement As String = "SELECT * FROM Orders WHERE cust_id = @cust_id ORDER BY order_date desc;"
-        Dim selectCommand As New SqlCommand(selectStatement, connection)
+        Dim selectCommand As New SalouCommand(selectStatement, connection)
         selectCommand.Parameters.AddWithValue("@cust_id", CustomerID)
         Try
             connection.Open()
-            Dim reader As SqlDataReader = selectCommand.ExecuteReader
+            Dim reader = selectCommand.ExecuteReader
             Dim order As New Order
             While (reader.Read)
                 order = New Order

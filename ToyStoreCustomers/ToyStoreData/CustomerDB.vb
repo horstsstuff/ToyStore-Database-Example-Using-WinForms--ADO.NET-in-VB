@@ -1,13 +1,13 @@
-﻿Imports System.Data.SqlClient
-
+﻿Imports System.Data.Common
+Imports SalouWS4Sql.Client
 Public Class CustomerDB
 
     Public Shared Function AddCustomer(ByVal customer As Customer) As String
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         Dim insertStatement As String = "INSERT Customers (cust_name, cust_address, cust_city, cust_state, " &
             "cust_zip, cust_country) VALUES (@cust_name, @cust_address, @cust_city, @cust_state, @cust_zip, " &
             "@cust_country);"
-        Dim insertcommand As New SqlCommand(insertStatement, connection)
+        Dim insertcommand = New SalouCommand(insertStatement, connection)
         insertcommand.Parameters.AddWithValue("@cust_name", customer.Cust_name)
         insertcommand.Parameters.AddWithValue("@cust_address", customer.Cust_address)
         insertcommand.Parameters.AddWithValue("@cust_city", customer.Cust_city)
@@ -18,7 +18,7 @@ Public Class CustomerDB
             connection.Open()
             insertcommand.ExecuteNonQuery()
             Dim selectStatement As String = "SELECT DISTINCT IDENT_CURRENT('Customers') FROM Customers"
-            Dim selectCommand As New SqlCommand(selectStatement, connection)
+            Dim selectCommand As New SalouCommand(selectStatement, connection)
             Dim customerID As Integer = CInt(selectCommand.ExecuteScalar)
             Return customerID
         Catch ex As Exception
@@ -31,18 +31,18 @@ Public Class CustomerDB
 
     Public Shared Function GetSelectedCustomers(ByVal name As String, ByVal state As String) As List(Of Customer)
         Dim customerList As New List(Of Customer)
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         Dim selectStatement As String = "SELECT * " &
             "FROM Customers " &
             "WHERE (cust_name LIKE @cust_name) AND (cust_state LIKE @cust_state) " &
             "Order by cust_name;"
-        Dim selectCommand As New SqlCommand(selectStatement, connection)
+        Dim selectCommand As New SalouCommand(selectStatement, connection)
         selectCommand.Parameters.AddWithValue("@cust_name", name & "%")
         selectCommand.Parameters.AddWithValue("@cust_state", state & "%")
 
         Try
             connection.Open()
-            Dim reader As SqlDataReader = selectCommand.ExecuteReader
+            Dim reader = selectCommand.ExecuteReader
             Dim customer As Customer
             While reader.Read
                 customer = New Customer
@@ -66,17 +66,17 @@ Public Class CustomerDB
 
     Public Shared Function GetCustomerByID(ByVal custID As String) As Customer
         Dim customer As New Customer
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         'Get rid of * and specify columns?
         Dim selectStatement As String = "SELECT * " &
             "FROM Customers " &
             "WHERE cust_id = @cust_id;"
-        Dim selectCommand As New SqlCommand(selectStatement, connection)
+        Dim selectCommand As New SalouCommand(selectStatement, connection)
         selectCommand.Parameters.AddWithValue("@cust_id", custID)
 
         Try
             connection.Open()
-            Dim reader As SqlDataReader = selectCommand.ExecuteReader()
+            Dim reader = selectCommand.ExecuteReader()
             If reader.Read Then
                 customer.Cust_id = reader("cust_id").ToString
                 customer.Cust_name = reader("cust_name").ToString
@@ -98,7 +98,7 @@ Public Class CustomerDB
     End Function
 
     Public Shared Function UpdateCustomer(ByVal oldCustomer As Customer, ByVal newCustomer As Customer) As Boolean
-        Dim connection As SqlConnection = ToyStoreDataDB.GetConnection
+        Dim connection As DbConnection = ToyStoreDataDB.GetConnection
         Dim updateStatement As String = "UPDATE Customers SET cust_name = @newcust_name, " &
             "cust_address = @newcust_address, " &
             "cust_city = @newcust_city, " &
@@ -112,7 +112,7 @@ Public Class CustomerDB
             "cust_state = @oldcust_state AND " &
             "cust_zip = @oldcust_zip AND " &
             "cust_country = @oldcust_country "
-        Dim updateCommand As New SqlCommand(updateStatement, connection)
+        Dim updateCommand As New SalouCommand(updateStatement, connection)
         updateCommand.Parameters.AddWithValue("@newcust_name", newCustomer.Cust_name)
         updateCommand.Parameters.AddWithValue("@newcust_address", newCustomer.Cust_address)
         updateCommand.Parameters.AddWithValue("@newcust_city", newCustomer.Cust_city)
